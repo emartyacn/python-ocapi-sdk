@@ -3,6 +3,7 @@ import json
 import requests
 from requests_oauthlib import OAuth2Session
 
+from ocapi.request_data import RequestData
 from ocapi.lib.conf import Provider
 
 
@@ -17,66 +18,21 @@ class ShopAPI(Provider):
         https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/OCAPI/current/shop/Resources/index.html
     """
 
-    AUTH_BASE = 'https://account.demandware.com'
-    REDIRECT_URI = 'https://account.demandware.com'
-    TOKEN_URL = 'https://account.demandware.com/dw/oauth2/access_token'
-    AUTH_PATH = '/dwsso/oauth2/authorize?client_id=%s&redirect_uri=%s&response_type=%s'
-
     def __init__(self):
         # TODO make args out of SITE and config out of VER
         self.SITE = 's/en-US'
         self.API_TYPE = 'dw/shop'
         self.VER = 'v20_4'
-
-    @property
-    def creds(self):
-        return self.client_id, self.client_secret
-
-    @property
-    def client_id(self):
-        return self.get_credential('client_id')
-
-    @property
-    def client_secret(self):
-        return self.get_credential('client_secret')
-
-    @property
-    def hostname(self):
-        return self.get_credential('hostname')
+        self.data = RequestData()
 
     @property
     def api_url(self):
         return 'https://{0}/{1}/{2}/{3}'.format(
-            self.hostname,
+            self.data.hostname,
             self.SITE,
             self.API_TYPE,
             self.VER
     )
-
-
-    def obtain_token(self):
-        # TODO: Obtain refresh token
-        provider = ShopAPI()
-        auth = (self.client_id, self.client_secret)
-        payload = {'grant_type': 'client_credentials'}
-        resp = requests.post(
-            provider.TOKEN_URL,
-            auth=provider.creds,
-            data=payload,
-        )
-        try:
-            token = resp.json()['access_token']
-            success_msg = """
-            ************************
-            Authorization Successful
-            ************************
-            """
-            print(success_msg)
-            return token
-        except Exception as e:
-            # TODO: Use logging
-            print(e)
-            resp.raise_for_status()
 
 
     def product_search(self, query):
@@ -84,23 +40,19 @@ class ShopAPI(Provider):
         https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/OCAPI/current/shop/Resources/ProductSearch.html
 
         """
-        # TODO: Make token and headers accessible globally
-        token = self.obtain_token()
-        headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'Bearer {0}'.format(token),
-            'x-dw-client-id': self.client_id,
-        }
-        endpoint = '/product_search?q={0}&client_id={1}'.format(query, self.client_id)
+        endpoint = '/product_search?q={0}&client_id={1}'.format(query, self.data.client_id)
         request_url = '{0}{1}'.format(self.api_url, endpoint)
         try:
             req = requests.get(
                 request_url,
-                headers=headers,
+                headers=self.data.headers,
                 timeout=30,
             ).json()['hits']
             return json.dumps(req)
         except Exception as e:
             # TODO: Use logging
             raise
+
+
+    def customer(self):
+        pass
