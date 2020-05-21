@@ -26,6 +26,7 @@ class ShopAPI(Provider):
         self.API_TYPE = 'dw/shop'
         self.VER = 'v20_4'
         self.data = RequestData()
+        self.headers = self.data.headers
 
     @property
     def api_url(self):
@@ -44,14 +45,14 @@ class ShopAPI(Provider):
         """
         endpoint = '/product_search?q={0}&client_id={1}'.format(query, self.data.client_id)
         request_url = '{0}{1}'.format(self.api_url, endpoint)
-        req = requests.get(
+        res = requests.get(
             request_url,
-            headers=self.data.headers,
+            headers=self.headers,
             timeout=30,
         )
-        logging.info(json.dumps(req.json(), indent=2))
+        logging.info(json.dumps(res.json(), indent=2))
         try:
-            hits = req.json()['hits']
+            hits = res.json()['hits']
             logging.info(json.dumps(hits, indent=2))
             return json.dumps(hits)
         except Exception as e:
@@ -59,4 +60,21 @@ class ShopAPI(Provider):
 
 
     def customer(self):
-        pass
+        endpoint = '/customers?{0}'.format(self.data.client_id)
+        request_url = '{0}{1}'.format(self.api_url, endpoint)
+        payload = {
+            "password":"abcd1234$$",
+                "customer": {
+                "login": "ocapi.qa",
+                "email":"ocapiguya001@mailinator.com",
+                "last_name":"Ocapi"
+            }
+        }
+        req = requests.post(
+            request_url,
+            headers=self.headers,
+            json=payload,
+            timeout=30,
+        )
+        logging.info(json.dumps(req.json(), indent=2))
+        print(json.dumps(req.json(), indent=2))
