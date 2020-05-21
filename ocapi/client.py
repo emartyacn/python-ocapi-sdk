@@ -6,16 +6,14 @@ from requests_oauthlib import OAuth2Session
 from ocapi.lib.conf import Provider
 
 
-class PyCapi(Provider):
+class ShopAPI(Provider):
 
     """A module to wrap portions of the OCAPI API using Python
 
     Refrences:
 
         https://api-explorer.commercecloud.salesforce.com
-        https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/OCAPI/current/usage/GettingStartedWithOCAPI.html?cp=0_13_0
-        https://stackoverflow.com/questions/52700104/salesforce-commerce-cloud-add-search-subrequest-in-batch-ocapi
-
+        https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/OCAPI/current/shop/Resources/index.html
     """
 
     AUTH_BASE = 'https://account.demandware.com'
@@ -24,8 +22,8 @@ class PyCapi(Provider):
     AUTH_PATH = '/dwsso/oauth2/authorize?client_id=%s&redirect_uri=%s&response_type=%s'
 
     def __init__(self):
-        self.SITE = 's/-'
-        self.API_TYPE = 'dw/data'
+        self.SITE = 's/en-US'
+        self.API_TYPE = 'dw/shop'
         self.VER = 'v20_4'
 
     @property
@@ -55,51 +53,44 @@ class PyCapi(Provider):
 
 
     def obtain_token(self):
-        provider = PyCapi()
+        provider = ShopAPI()
         auth = (self.client_id, self.client_secret)
         payload = {'grant_type': 'client_credentials'}
         resp = requests.post(
             provider.TOKEN_URL,
             auth=provider.creds,
             data=payload,
-        ).json()
-        token = resp['access_token']
-        success_msg = """
-        ------------------------
-        Authorization Successful
-        ------------------------
-        """
-        print(success_msg)
-        return token
+        )
+        try:
+            token = resp.json()['access_token']
+            success_msg = """
+            ************************
+            Authorization Successful
+            ************************
+            """
+            print(success_msg)
+            return token
+        except Exception as e:
+            print(e)
+            resp.raise_for_status()
 
 
     def product_search(self, query):
+        """
+        https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/OCAPI/current/shop/Resources/ProductSearch.html
+
+        """
         token = self.obtain_token()
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': 'Bearer {0}'.format(token)
         }
-
-        data = {
-            "count": 1,
-            "db_start_record_": 0,
-            "query": {
-                "text_query": {
-                  "fields": ["id"],
-                  "search_phrase": query
-                }
-            },
-            "select": "(hits.(product_id, link))",
-            "start": 0
-        }
-
-        endpoint = '/product_search?client_id={0}'.format(self.client_id)
+        endpoint = '/product_search?q={0}&client_id={1}'.format(query, self.client_id)
         request_url = '{0}{1}'.format(self.api_url, endpoint)
-        req = requests.post(
+        req = requests.get(
             request_url,
             headers=headers,
-            json=data,
             timeout=30,
         ).json()
         print('Response\n')
