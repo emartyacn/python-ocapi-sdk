@@ -6,6 +6,8 @@ from requests_oauthlib import OAuth2Session
 from ocapi.request_data import RequestData
 from ocapi.lib.conf import Provider
 
+import logging
+
 
 class ShopAPI(Provider):
 
@@ -42,16 +44,18 @@ class ShopAPI(Provider):
         """
         endpoint = '/product_search?q={0}&client_id={1}'.format(query, self.data.client_id)
         request_url = '{0}{1}'.format(self.api_url, endpoint)
+        req = requests.get(
+            request_url,
+            headers=self.data.headers,
+            timeout=30,
+        )
+        logging.info(json.dumps(req.json(), indent=2))
         try:
-            req = requests.get(
-                request_url,
-                headers=self.data.headers,
-                timeout=30,
-            ).json()['hits']
-            return json.dumps(req)
+            hits = req.json()['hits']
+            logging.info(json.dumps(hits, indent=2))
+            return json.dumps(hits)
         except Exception as e:
-            # TODO: Use logging
-            raise
+            logging.exception('\n\n')
 
 
     def customer(self):

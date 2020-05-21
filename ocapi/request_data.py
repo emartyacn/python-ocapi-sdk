@@ -1,6 +1,10 @@
+import json
+
 import requests
 
 from ocapi.lib.conf import Provider
+
+import logging
 
 
 class RequestData(Provider):
@@ -40,17 +44,10 @@ class RequestData(Provider):
         )
         try:
             token = resp.json()['access_token']
-            success_msg = """
-            ************************
-            Authorization Successful
-            ************************
-            """
-            print(success_msg)
+            logging.info('Authorization Sucessful')
             return token
         except Exception as e:
-            # TODO: Use logging
-            print(e)
-            resp.raise_for_status()
+            logging.exception('\n\nCAN\'T REACH API!\n\n %s ' %  (json.dumps(resp.json(), indent=2) + '\n'))
 
     @property
     def headers(self):
