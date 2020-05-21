@@ -6,7 +6,17 @@ from requests_oauthlib import OAuth2Session
 from ocapi.lib.conf import Provider
 
 
-class Auth(Provider):
+class PyCapi(Provider):
+
+    """A module to wrap portions of the OCAPI API using Python
+
+    Refrences:
+
+        https://api-explorer.commercecloud.salesforce.com
+        https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/OCAPI/current/usage/GettingStartedWithOCAPI.html?cp=0_13_0
+        https://stackoverflow.com/questions/52700104/salesforce-commerce-cloud-add-search-subrequest-in-batch-ocapi
+
+    """
 
     AUTH_BASE = 'https://account.demandware.com'
     REDIRECT_URI = 'https://account.demandware.com'
@@ -45,7 +55,7 @@ class Auth(Provider):
 
 
     def obtain_token(self):
-        provider = Auth()
+        provider = PyCapi()
         auth = (self.client_id, self.client_secret)
         payload = {'grant_type': 'client_credentials'}
         resp = requests.post(
@@ -65,18 +75,32 @@ class Auth(Provider):
 
     def product_search(self, query):
         token = self.obtain_token()
-        data = {'data': query}
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': 'Bearer {0}'.format(token)
         }
+
+        data = {
+            "count": 1,
+            "db_start_record_": 0,
+            "query": {
+                "text_query": {
+                  "fields": ["id"],
+                  "search_phrase": query
+                }
+            },
+            "select": "(hits.(product_id, link))",
+            "start": 0
+        }
+
         endpoint = '/product_search?client_id={0}'.format(self.client_id)
         request_url = '{0}{1}'.format(self.api_url, endpoint)
         req = requests.post(
             request_url,
             headers=headers,
-            data=data,
-            timeout=60,
+            json=data,
+            timeout=30,
         ).json()
-        print('Response:\n'.format(json.dumps(req, indent=2)))
+        print('Response\n')
+        print(json.dumps(req, indent=2))
