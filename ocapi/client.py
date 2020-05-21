@@ -10,8 +10,9 @@ class ShopAPI(Provider):
 
     """A module to wrap portions of the OCAPI API using Python
 
-    Refrences:
+    References:
 
+        https://github.com/ashishkumar-tudip/python-demandware-sdk
         https://api-explorer.commercecloud.salesforce.com
         https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/OCAPI/current/shop/Resources/index.html
     """
@@ -22,6 +23,7 @@ class ShopAPI(Provider):
     AUTH_PATH = '/dwsso/oauth2/authorize?client_id=%s&redirect_uri=%s&response_type=%s'
 
     def __init__(self):
+        # TODO make args out of SITE and config out of VER
         self.SITE = 's/en-US'
         self.API_TYPE = 'dw/shop'
         self.VER = 'v20_4'
@@ -53,6 +55,7 @@ class ShopAPI(Provider):
 
 
     def obtain_token(self):
+        # TODO: Obtain refresh token
         provider = ShopAPI()
         auth = (self.client_id, self.client_secret)
         payload = {'grant_type': 'client_credentials'}
@@ -71,6 +74,7 @@ class ShopAPI(Provider):
             print(success_msg)
             return token
         except Exception as e:
+            # TODO: Use logging
             print(e)
             resp.raise_for_status()
 
@@ -80,18 +84,23 @@ class ShopAPI(Provider):
         https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/OCAPI/current/shop/Resources/ProductSearch.html
 
         """
+        # TODO: Make token and headers accessible globally
         token = self.obtain_token()
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Authorization': 'Bearer {0}'.format(token)
+            'Authorization': 'Bearer {0}'.format(token),
+            'x-dw-client-id': self.client_id,
         }
         endpoint = '/product_search?q={0}&client_id={1}'.format(query, self.client_id)
         request_url = '{0}{1}'.format(self.api_url, endpoint)
-        req = requests.get(
-            request_url,
-            headers=headers,
-            timeout=30,
-        ).json()
-        print('Response\n')
-        print(json.dumps(req, indent=2))
+        try:
+            req = requests.get(
+                request_url,
+                headers=headers,
+                timeout=30,
+            ).json()['hits']
+            return json.dumps(req)
+        except Exception as e:
+            # TODO: Use logging
+            raise
