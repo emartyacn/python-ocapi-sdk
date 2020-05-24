@@ -11,6 +11,7 @@ classifiers = [
 
 install_requires = [
     "requests>=2.23.0",
+    "requests-oauthlib>=1.3.0",
 ]
 
 
