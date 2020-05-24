@@ -22,15 +22,19 @@ class RequestData(Provider):
 
     @property
     def client_id(self):
-        return self.get_credential('client_id')
+        return self.get_properties('client_id')
 
     @property
     def client_secret(self):
-        return self.get_credential('client_secret')
+        return self.get_properties('client_secret')
 
     @property
     def hostname(self):
-        return self.get_credential('hostname')
+        return self.get_properties('hostname')
+
+    @property
+    def api_version(self):
+        return self.get_properties('api_version')
 
     def obtain_token(self):
         # TODO: Obtain refresh token

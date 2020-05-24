@@ -21,36 +21,36 @@ class ShopAPI(Provider):
     """
 
     def __init__(self):
-        # TODO make args out of SITE and config out of VER
-        self.SITE = 's/en-US'
-        self.API_TYPE = 'dw/shop'
-        self.VER = 'v20_4'
         self.data = RequestData()
+        self.API_TYPE = 'dw/shop'
         self.headers = self.data.headers
+        self.client_id = self.data.client_id
+        self.VER = self.data.api_version
 
-    @property
-    def api_url(self):
-        return 'https://{0}/{1}/{2}/{3}'.format(
+
+    def api_url(self, site_id='-'):
+        return 'https://{0}/s/{1}/{2}/{3}'.format(
             self.data.hostname,
-            self.SITE,
+            site_id,
             self.API_TYPE,
             self.VER
     )
 
 
-    def product_search(self, query):
+    def product_search(self, site_id, query):
         """
         https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/OCAPI/current/shop/Resources/ProductSearch.html
 
         """
-        endpoint = '/product_search?q={0}&client_id={1}'.format(query, self.data.client_id)
-        request_url = '{0}{1}'.format(self.api_url, endpoint)
+        api_url = self.api_url(site_id)
+        endpoint = '/product_search?q={0}&client_id={1}'.format(query, self.client_id)
+        request_url = '{0}{1}'.format(api_url, endpoint)
         res = requests.get(
             request_url,
             headers=self.headers,
             timeout=30,
         )
-        logging.info(json.dumps(res.json(), indent=2))
+        logging.debug(json.dumps(res.json(), indent=2))
         try:
             hits = res.json()['hits']
             logging.info(json.dumps(hits, indent=2))
@@ -59,8 +59,22 @@ class ShopAPI(Provider):
             logging.exception('\n\n')
 
 
+    def auth(self):
+        # WIP
+        endpoint = '/customers/auth?client_id={0}'.format(self.client_id)
+        request_url = '{0}{1}'.format(self.api_url, endpoint)
+        payload = {'type': 'credentials'}
+        req = requests.post(
+            request_url,
+            headers=self.headers,
+            auth=self.data.creds,
+            json=payload,
+        )
+
+
     def customer(self):
-        endpoint = '/customers?{0}'.format(self.data.client_id)
+        # WIP
+        endpoint = '/customers?client_id={0}'.format(self.client_id)
         request_url = '{0}{1}'.format(self.api_url, endpoint)
         payload = {
             "password":"abcd1234$$",
