@@ -11,7 +11,7 @@ class Provider(object):
     @property
     def config(self):
         config = configparser.ConfigParser()
-        if len (config.read(os.path.join(os.getcwd(), '.properties'))) == 0:
+        if len (config.read(os.path.join(os.getcwd(), '.pycapi'))) == 0:
             return None
         else:
             return config
@@ -24,4 +24,4 @@ class Provider(object):
                 return self.config.get('default', key)
             #except (configparser.NoSectionError, configparser.NoOptionError, KeyError):
             except:
-                logging.exception('\n\nProperties file found however configs could not be determined\n\n')
+                logging.exception('\n\nYou must either specify configs in a .pycapi file or supply args in an API instance\n\n')

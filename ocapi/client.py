@@ -21,7 +21,7 @@ class ShopAPI(PyCAPI):
     """
 
     def __init__(self, *args, **kwargs):
-        self.ocapi = PyCAPI()
+        self.ocapi = PyCAPI(kwargs)
         self.API_TYPE = 'dw/shop'
 
 

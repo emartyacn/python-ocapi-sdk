@@ -16,27 +16,57 @@ class PyCAPI(Provider):
     AUTH_BASE = 'https://account.demandware.com'
     TOKEN_URL = 'https://account.demandware.com/dw/oauth2/access_token'
 
-    #def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        if kwargs:
+            self.host = kwargs['hostname']
+            self.client = kwargs['client']
+            self.secret = kwargs['secret']
+            self.version = kwargs['api_version']
 
     @property
     def creds(self):
         return self.client_id, self.client_secret
 
+    @creds.setter
+    def creds(self, val):
+        if val == None:
+            return self.client, self.secret
+
     @property
     def client_id(self):
         return self.get_properties('client_id')
+
+    @client_id.setter
+    def client_id(self, val):
+        if val == None:
+            return self.client
 
     @property
     def client_secret(self):
         return self.get_properties('client_secret')
 
+    @client_secret.setter
+    def client_secret(self, val):
+        if val == None:
+            return self.secret
+
     @property
     def hostname(self):
         return self.get_properties('hostname')
 
+    @hostname.setter
+    def hostname(self, val):
+        if val == None:
+            return self.host
+
     @property
     def api_version(self):
         return self.get_properties('api_version')
+
+    @api_version.setter
+    def api_version(self, val):
+        if val == None:
+            return self.version
 
     def obtain_token(self):
         # TODO: Obtain refresh token
