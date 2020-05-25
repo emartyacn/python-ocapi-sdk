@@ -7,7 +7,7 @@ from ocapi.lib.conf import Provider
 import logging
 
 
-class RequestData(Provider):
+class PyCAPI(Provider):
 
     """Creates and instance of the data we need to authorize our client
     and make requests to ocapi
@@ -15,6 +15,8 @@ class RequestData(Provider):
 
     AUTH_BASE = 'https://account.demandware.com'
     TOKEN_URL = 'https://account.demandware.com/dw/oauth2/access_token'
+
+    #def __init__(self, *args, **kwargs):
 
     @property
     def creds(self):
@@ -38,7 +40,7 @@ class RequestData(Provider):
 
     def obtain_token(self):
         # TODO: Obtain refresh token
-        provider = RequestData()
+        provider = PyCAPI()
         auth = (self.client_id, self.client_secret)
         payload = {'grant_type': 'client_credentials'}
         resp = requests.post(
