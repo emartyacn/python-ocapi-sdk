@@ -17,65 +17,51 @@ class PyCAPI(Provider):
     TOKEN_URL = 'https://account.demandware.com/dw/oauth2/access_token'
 
     def __init__(self, *args, **kwargs):
-        if kwargs:
-            self.host = kwargs['hostname']
-            self.client = kwargs['client']
-            self.secret = kwargs['secret']
-            self.version = kwargs['api_version']
-
-    @property
-    def creds(self):
-        return self.client_id, self.client_secret
-
-    @creds.setter
-    def creds(self, val):
-        if val == None:
-            return self.client, self.secret
+        self.data = {}
+        self.data.update((key for key in kwargs.items()))
 
     @property
     def client_id(self):
-        return self.get_properties('client_id')
-
-    @client_id.setter
-    def client_id(self, val):
-        if val == None:
-            return self.client
+        if self.get_properties('client_id') is not None:
+            return self.get_properties('client_id')
+        else:
+            return self.data['client_id']
 
     @property
     def client_secret(self):
-        return self.get_properties('client_secret')
-
-    @client_secret.setter
-    def client_secret(self, val):
-        if val == None:
-            return self.secret
+        if self.get_properties('client_secret') is not None:
+            return self.get_properties('client_secret')
+        else:
+            return self.data['client_secret']
 
     @property
     def hostname(self):
-        return self.get_properties('hostname')
-
-    @hostname.setter
-    def hostname(self, val):
-        if val == None:
-            return self.host
+        if self.get_properties('hostname') is not None:
+            return self.get_properties('hostname')
+        else:
+            return self.data['hostname']
 
     @property
     def api_version(self):
-        return self.get_properties('api_version')
+        if self.get_properties('api_version') is not None:
+            return self.get_properties('api_version')
+        else:
+            return self.data['api_version']
 
-    @api_version.setter
-    def api_version(self, val):
-        if val == None:
-            return self.version
+    @property
+    def creds(self):
+        if (self.get_properties('client_id')) and (self.get_properties('client_secret')) is not None:
+            return self.get_properties('client_id'), self.get_properties('client_secret')
+        else:
+            return self.data['client_id'], self.data['client_secret']
 
     def obtain_token(self):
         # TODO: Obtain refresh token
-        provider = PyCAPI()
         auth = (self.client_id, self.client_secret)
         payload = {'grant_type': 'client_credentials'}
         resp = requests.post(
-            provider.TOKEN_URL,
-            auth=provider.creds,
+            self.TOKEN_URL,
+            auth=auth,
             data=payload,
         )
         try:

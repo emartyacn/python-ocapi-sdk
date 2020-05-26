@@ -21,7 +21,7 @@ class ShopAPI(PyCAPI):
     """
 
     def __init__(self, *args, **kwargs):
-        self.ocapi = PyCAPI(kwargs)
+        self.ocapi = PyCAPI(**kwargs)
         self.API_TYPE = 'dw/shop'
 
 
@@ -64,7 +64,7 @@ class ShopAPI(PyCAPI):
         req = requests.post(
             request_url,
             headers=self.ocapi.headers,
-            auth=self.ocapi.creds,
+            auth=self.creds,
             json=payload,
         )
 
