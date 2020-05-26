@@ -51,7 +51,7 @@ class ShopAPI(PyCAPI):
         try:
             hits = res.json()['hits']
             logging.info(json.dumps(hits, indent=2))
-            return json.dumps(hits)
+            return hits
         except Exception as e:
             logging.exception('\n\n')
 
