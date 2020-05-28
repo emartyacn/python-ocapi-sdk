@@ -17,5 +17,4 @@ def get_product(site_id='-', query=None):
         resp['primary_category_id'],
         resp['name'].replace(' ', '-').lower(),
         resp['id'])
-    product_url = requests.get(product_link, auth=auth).url
-    return product_url
+    return product_link
