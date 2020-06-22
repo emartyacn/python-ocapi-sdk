@@ -25,7 +25,7 @@ api_version = v20_4
 ```python
 from ocapi.client import ShopAPI
 
-api = ShopAPI(hostname='dev-us.pandora.net', client_id='<CLIENT_ID>', client_secret='<CLIENT_SECRET>', api_version='
+api = ShopAPI(hostname='<INSTANCE_URI>', client_id='<CLIENT_ID>', client_secret='<CLIENT_SECRET>', api_version='
    ...: v20_4')
 
 api.product_search(site_id='en-US', query='rings')
@@ -39,13 +39,13 @@ api.product_search(site_id='en-US', query='rings')
 ```shell
 [{'_type': 'product_search_hit',
   'hit_type': 'master',
-  'link': 'https://dev-us.pandora.net/s/en-US/dw/shop/v20_4/products/188882C01?q=rings&client_id=cea04f38-4d79-4a1d-b3cb-171b771dccce',
+  'link': 'https://<INSTANCE>/s/en-US/dw/shop/v20_4/products/xxxxxxxx?q=rings&client_id=xxxxxxxxxxxxxxxxxx',
   'product_id': '188882C01',
   'product_name': 'Wrapped Open Infinity Ring',
   'product_type': {'_type': 'product_type', 'master': True},
   'represented_product': {'_type': 'product_ref',
    'id': '188882C01-48',
-   'link': 'https://dev-us.pandora.net/s/en-US/dw/shop/v20_4/products/188882C01-48?q=rings&client_id=cea04f38-4d79-4a1d-b3cb-171b771dccce'}},
+   'link': 'https://<INSTANCE>/s/en-US/dw/shop/v20_4/products/xxxxxxxxx-48?q=rings&client_id=xxxxxxxxxxxxxxxxxxxx'}},
 ...
 ```
 
